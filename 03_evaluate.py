@@ -1,16 +1,13 @@
 """
-Step 3 - Evaluate retrieval accuracy on the validation set.
+Step 3 (improved) - Evaluate with multi-crop scene matching.
 
-For each validation (product, scene) pair we embed the scene, rank all catalog
-products by cosine similarity, and check the rank of the true product. We report
-the standard retrieval metrics your evaluator wants:
+A scene is a full outfit photo; the whole-image embedding is dominated by the
+background and person. We instead split each scene into overlapping regions
+(full + center + quadrants), embed each crop, and score every catalog product
+by its BEST-matching crop. This compares garment-region to product instead of
+whole-room to product, which lifts retrieval accuracy.
 
-  Top-1  / Top-5 / Top-10 accuracy   (is the true product in the top K?)
-  MRR                                 (mean reciprocal rank)
-
-Only pairs whose true product is in our downloaded catalog AND whose scene image
-downloaded are scored (others are not answerable and would unfairly penalize).
-
+Metrics: Top-1 / Top-5 / Top-10 accuracy + MRR on validation pairs.
 Outputs: prints metrics, writes metrics.json
 """
 import json, os
@@ -21,8 +18,8 @@ from PIL import Image
 from tqdm import tqdm
 
 IMG_SCENES = "images/scenes"
-MODEL_NAME = "ViT-B-32"
-PRETRAINED = "laion2b_s34b_b79k"
+MODEL_NAME = "ViT-L-14"
+PRETRAINED = "laion2b_s32b_b82k"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -47,6 +44,20 @@ def read_jsonl(path):
     return rows
 
 
+def crops(img):
+    """Full image + center + 4 quadrants (each slightly overlapping)."""
+    w, h = img.size
+    regions = [img]                                   # full
+    cx0, cy0, cx1, cy1 = int(w*0.15), int(h*0.15), int(w*0.85), int(h*0.85)
+    regions.append(img.crop((cx0, cy0, cx1, cy1)))    # center
+    mx, my = int(w*0.55), int(h*0.55)
+    regions.append(img.crop((0, 0, mx, my)))          # top-left
+    regions.append(img.crop((w-mx, 0, w, my)))        # top-right
+    regions.append(img.crop((0, h-my, mx, h)))        # bottom-left
+    regions.append(img.crop((w-mx, h-my, w, h)))      # bottom-right
+    return regions
+
+
 def embed_scene(sid):
     path = os.path.join(IMG_SCENES, sid + ".jpg")
     if not os.path.exists(path):
@@ -56,10 +67,10 @@ def embed_scene(sid):
     except Exception:
         return None
     with torch.no_grad():
-        x = preprocess(img).unsqueeze(0).to(device)
-        f = model.encode_image(x)
+        batch = torch.stack([preprocess(c) for c in crops(img)]).to(device)
+        f = model.encode_image(batch)
         f = f / f.norm(dim=-1, keepdim=True)
-    return f.cpu().numpy()[0]
+    return f.cpu().numpy()                              # (num_crops x D)
 
 
 val = read_jsonl("dataset/validation.jsonl")
@@ -69,19 +80,20 @@ for r in tqdm(val):
     prod, scene = r["product"], r["scene"]
     if prod not in cat_set:
         continue
-    q = embed_scene(scene)
+    q = embed_scene(scene)                             # crops x D
     if q is None:
         continue
-    sims = cat_emb @ q                       # cosine sims
-    order = np.argsort(-sims)                # best first
+    # best crop similarity per catalog product
+    sims = (cat_emb @ q.T).max(axis=1)                 # N
+    order = np.argsort(-sims)
     true_row = id_to_row[prod]
-    rank = int(np.where(order == true_row)[0][0]) + 1   # 1-based
+    rank = int(np.where(order == true_row)[0][0]) + 1
     ranks.append(rank)
     scored += 1
 
 ranks = np.array(ranks)
 metrics = {
-    "model": f"open_clip {MODEL_NAME} / {PRETRAINED}",
+    "model": f"open_clip {MODEL_NAME} / {PRETRAINED} + multi-crop scene matching",
     "catalog_size": len(cat_ids),
     "pairs_scored": scored,
     "top1": float(np.mean(ranks <= 1)),

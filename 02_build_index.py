@@ -1,13 +1,13 @@
 """
-Step 2 - Encode every downloaded catalog image into a CLIP embedding.
+Step 2 (improved) - Encode catalog images with a stronger CLIP model.
 
-Model: open_clip ViT-B-32, pretrained on laion2b. This is the "model used"
-your evaluator asks about. Embeddings are L2-normalized so a dot product equals
-cosine similarity.
+Model upgraded to open_clip ViT-L-14 (laion2b). Larger model -> better
+embeddings -> higher retrieval accuracy. Embeddings are L2-normalized so a dot
+product equals cosine similarity.
 
 Outputs:
   catalog_embeddings.npy   (N x D float32, normalized)
-  catalog_ids.json         (the product id for each row, same order)
+  catalog_ids.json         (product id per row, same order)
 """
 import json, os
 import numpy as np
@@ -17,11 +17,11 @@ from PIL import Image
 from tqdm import tqdm
 
 IMG_CATALOG = "images/catalog"
-MODEL_NAME = "ViT-B-32"
-PRETRAINED = "laion2b_s34b_b79k"
+MODEL_NAME = "ViT-L-14"
+PRETRAINED = "laion2b_s32b_b82k"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Device: {device}")
+print(f"Device: {device} | Model: {MODEL_NAME} ({PRETRAINED})")
 
 model, _, preprocess = open_clip.create_model_and_transforms(
     MODEL_NAME, pretrained=PRETRAINED
