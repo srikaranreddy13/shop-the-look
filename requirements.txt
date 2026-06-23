@@ -1,8 +1,6 @@
+streamlit
+open_clip_torch
 torch
 torchvision
-open_clip_torch
 pillow
-requests
 numpy
-tqdm
-streamlit
