@@ -20,8 +20,8 @@ import streamlit as st
 
 IMG_SCENES = "images/scenes"
 IMG_CATALOG = "images/catalog"
-MODEL_NAME = "ViT-L-14"
-PRETRAINED = "laion2b_s32b_b82k"
+MODEL_NAME = "ViT-B-32"
+PRETRAINED = "laion2b_s34b_b79k"
 
 COLORS = ["black", "white", "red", "blue", "green", "yellow", "pink",
           "brown", "grey", "beige", "navy", "purple", "orange", "cream"]

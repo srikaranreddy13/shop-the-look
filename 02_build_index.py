@@ -17,8 +17,8 @@ from PIL import Image
 from tqdm import tqdm
 
 IMG_CATALOG = "images/catalog"
-MODEL_NAME = "ViT-L-14"
-PRETRAINED = "laion2b_s32b_b82k"
+MODEL_NAME = "ViT-B-32"
+PRETRAINED = "laion2b_s34b_b79k"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device: {device} | Model: {MODEL_NAME} ({PRETRAINED})")
