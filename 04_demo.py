@@ -92,10 +92,12 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap');
 .stApp { background:#faf8f5; }
+/* header overlaps the top of the page; make it blend and clear it below */
+[data-testid="stHeader"] { background:transparent; }
 h1,h2,h3 { font-family:'Fraunces',serif !important; color:#1a1714 !important; letter-spacing:-.01em; }
-.block-container { padding-top:2.2rem; max-width:1200px; }
+.block-container { padding-top:4.5rem; max-width:1200px; }
 .eyebrow { font-family:'Inter',sans-serif; font-size:.72rem; letter-spacing:.22em;
-           text-transform:uppercase; color:#9a8f80; margin-bottom:.3rem; }
+           text-transform:uppercase; color:#7a6e5d; margin-bottom:.3rem; }
 .lede { font-family:'Inter',sans-serif; color:#6b6055; font-size:.95rem; margin-top:-.3rem; }
 .rule { height:1px; background:#e7e0d6; border:0; margin:1.4rem 0; }
 .score { font-family:'Fraunces',serif; font-size:1.1rem; color:#1a1714; margin-top:.5rem; }
@@ -111,6 +113,13 @@ h1,h2,h3 { font-family:'Fraunces',serif !important; color:#1a1714 !important; le
 .scene-img { width:100%; border-radius:8px; box-shadow:0 1px 3px rgba(26,23,20,.06); }
 section[data-testid="stSidebar"] { background:#f3eee7; border-right:1px solid #e7e0d6; }
 section[data-testid="stSidebar"] * { font-family:'Inter',sans-serif; color:#1a1714 !important; }
+/* restore icon font so Material Symbols ligatures (e.g. the collapse arrow)
+   render as glyphs instead of raw text like "keyboard_double_arrow_left" */
+section[data-testid="stSidebar"] [data-testid="stIconMaterial"],
+section[data-testid="stSidebar"] span[class*="material-symbols"],
+section[data-testid="stSidebar"] span[class*="material-icons"] {
+    font-family:'Material Symbols Rounded','Material Symbols Outlined','Material Icons' !important;
+}
 section[data-testid="stSidebar"] .eyebrow { color:#9a8f80 !important; }
 section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
 section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] * { color:#6b6055 !important; }
@@ -118,7 +127,11 @@ div[data-testid="stFileUploader"] section { border:1.5px dashed #cdc2b2; border-
 .empty { font-family:'Inter'; color:#9a8f80; text-align:center; padding:3rem 1rem;
          border:1.5px dashed #ddd4c6; border-radius:12px; background:#fdfcfa; }
 .stTabs [data-baseweb="tab-list"] { gap:1.5rem; }
-.stTabs [data-baseweb="tab"] { font-family:'Inter'; font-weight:500; }
+.stTabs [data-baseweb="tab"] { font-family:'Inter'; font-weight:500; color:#6b6055 !important; }
+.stTabs [data-baseweb="tab"] * { color:#6b6055 !important; }
+.stTabs [data-baseweb="tab"][aria-selected="true"],
+.stTabs [data-baseweb="tab"][aria-selected="true"] * { color:#1a1714 !important; }
+.stTabs [data-baseweb="tab-highlight"] { background:#9a5b34 !important; }
 </style>
 """, unsafe_allow_html=True)
 
