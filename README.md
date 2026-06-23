@@ -3,8 +3,8 @@ title: Shop the Look
 emoji: 🔍
 colorFrom: yellow
 colorTo: pink
-sdk: streamlit
-app_file: 04_demo.py
+sdk: docker
+app_port: 8501
 pinned: false
 ---
 
@@ -39,16 +39,18 @@ The model is set in one place (`config.py`) and shared by every script, so the
 query encoder and catalog index can never drift apart.
 
 ### Hugging Face Spaces (recommended — free, 16 GB RAM)
-The YAML header at the top of this README configures the Space (Streamlit SDK,
-`app_file: 04_demo.py`). To deploy:
+HF deprecated the built-in Streamlit SDK, so this app ships as a **Docker** Space.
+The YAML header at the top of this README (`sdk: docker`, `app_port: 8501`) plus
+the `Dockerfile` configure it. To deploy:
 ```bash
-# 1. Create a new Space at huggingface.co/new-space  (SDK: Streamlit)
+# 1. Create a new Space at huggingface.co/new-space  (SDK: Docker)
 # 2. Push this repo to it:
 git remote add space https://huggingface.co/spaces/<user>/<space-name>
 git push space main
 ```
-The Space builds from `requirements.txt`, runs `04_demo.py`, and serves the app.
-`catalog_embeddings.npy` + images are committed, so no rebuild is needed at boot.
+The Space builds the `Dockerfile`, which installs `requirements.txt` and runs
+`streamlit run 04_demo.py` on port 8501. `catalog_embeddings.npy` + images are
+committed, so no rebuild is needed at boot (only the model weights download once).
 
 ### Streamlit Community Cloud (free, ~1 GB RAM)
 Point it at this repo with `04_demo.py` as the main file. FashionSigLIP is
