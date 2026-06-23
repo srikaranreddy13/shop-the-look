@@ -1,9 +1,9 @@
 """
-Step 2 (improved) - Encode catalog images with a stronger CLIP model.
+Step 2 - Encode catalog images with a fashion-tuned embedding model.
 
-Model upgraded to open_clip ViT-L-14 (laion2b). Larger model -> better
-embeddings -> higher retrieval accuracy. Embeddings are L2-normalized so a dot
-product equals cosine similarity.
+Model: Marqo-FashionSigLIP (see config.py) -- fashion-specific, beats general
+CLIP on garment retrieval while staying small enough for free hosting.
+Embeddings are L2-normalized so a dot product equals cosine similarity.
 
 Outputs:
   catalog_embeddings.npy   (N x D float32, normalized)
@@ -16,16 +16,14 @@ import open_clip
 from PIL import Image
 from tqdm import tqdm
 
+from config import MODEL_REF, MODEL_LABEL
+
 IMG_CATALOG = "images/catalog"
-MODEL_NAME = "ViT-B-32"
-PRETRAINED = "laion2b_s34b_b79k"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Device: {device} | Model: {MODEL_NAME} ({PRETRAINED})")
+print(f"Device: {device} | Model: {MODEL_LABEL}")
 
-model, _, preprocess = open_clip.create_model_and_transforms(
-    MODEL_NAME, pretrained=PRETRAINED
-)
+model, _, preprocess = open_clip.create_model_and_transforms(MODEL_REF)
 model = model.to(device).eval()
 
 with open("catalog_subset.json") as f:

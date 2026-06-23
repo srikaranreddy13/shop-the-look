@@ -18,10 +18,10 @@ import open_clip
 from PIL import Image
 import streamlit as st
 
+from config import MODEL_REF, MODEL_LABEL
+
 IMG_SCENES = "images/scenes"
 IMG_CATALOG = "images/catalog"
-MODEL_NAME = "ViT-B-32"
-PRETRAINED = "laion2b_s34b_b79k"
 
 COLORS = ["black", "white", "red", "blue", "green", "yellow", "pink",
           "brown", "grey", "beige", "navy", "purple", "orange", "cream"]
@@ -31,10 +31,8 @@ CATEGORIES = ["dress", "shirt", "t-shirt", "jacket", "coat", "sweater",
 
 @st.cache_resource(show_spinner=False)
 def load_model():
-    model, _, preprocess = open_clip.create_model_and_transforms(
-        MODEL_NAME, pretrained=PRETRAINED
-    )
-    tokenizer = open_clip.get_tokenizer(MODEL_NAME)
+    model, _, preprocess = open_clip.create_model_and_transforms(MODEL_REF)
+    tokenizer = open_clip.get_tokenizer(MODEL_REF)
     return model.eval(), preprocess, tokenizer
 
 
@@ -135,7 +133,7 @@ with st.sidebar:
     topk = st.slider("Number of matches", 3, 8, 5)
     st.markdown('<hr class="rule">', unsafe_allow_html=True)
     st.markdown('<div class="eyebrow">Model</div>', unsafe_allow_html=True)
-    st.caption(f"open_clip {MODEL_NAME}\n\nCatalog: {len(cat_ids)} products\n\n"
+    st.caption(f"{MODEL_LABEL}\n\nCatalog: {len(cat_ids)} products\n\n"
                "Retrieval: multi-crop cosine similarity")
 
 # ---------------- header ----------------

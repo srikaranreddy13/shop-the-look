@@ -17,15 +17,13 @@ import open_clip
 from PIL import Image
 from tqdm import tqdm
 
+from config import MODEL_REF, MODEL_LABEL
+
 IMG_SCENES = "images/scenes"
-MODEL_NAME = "ViT-L-14"
-PRETRAINED = "laion2b_s32b_b82k"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model, _, preprocess = open_clip.create_model_and_transforms(
-    MODEL_NAME, pretrained=PRETRAINED
-)
+model, _, preprocess = open_clip.create_model_and_transforms(MODEL_REF)
 model = model.to(device).eval()
 
 cat_emb = np.load("catalog_embeddings.npy")            # N x D, normalized
@@ -93,7 +91,7 @@ for r in tqdm(val):
 
 ranks = np.array(ranks)
 metrics = {
-    "model": f"open_clip {MODEL_NAME} / {PRETRAINED} + multi-crop scene matching",
+    "model": f"{MODEL_LABEL} + multi-crop scene matching",
     "catalog_size": len(cat_ids),
     "pairs_scored": scored,
     "top1": float(np.mean(ranks <= 1)),

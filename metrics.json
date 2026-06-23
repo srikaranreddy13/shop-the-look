@@ -1,9 +1,9 @@
 {
-  "model": "open_clip ViT-L-14 / laion2b_s32b_b82k + multi-crop scene matching",
+  "model": "Marqo-FashionSigLIP (fashion-tuned) + multi-crop scene matching",
   "catalog_size": 966,
   "pairs_scored": 288,
-  "top1": 0.0798611111111111,
-  "top5": 0.2013888888888889,
-  "top10": 0.2847222222222222,
-  "mrr": 0.1456707008618394
+  "top1": 0.10416666666666667,
+  "top5": 0.2048611111111111,
+  "top10": 0.2638888888888889,
+  "mrr": 0.16164587507084718
 }
